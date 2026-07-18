@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #004ac6;
+  --color-primary-container: #2563eb;
+  --color-on-primary: #ffffff;
+  --color-secondary: #006591;
+  --color-secondary-container: #39b8fd;
+  --color-on-secondary: #ffffff;
+  --color-tertiary: #3e3fcc;
+  --color-tertiary-container: #585be6;
+  --color-on-tertiary: #ffffff;
+  
+  --color-background: #f9f9ff;
+  --color-surface: #ffffff;
+  --color-surface-dim: #d3daef;
+  --color-surface-bright: #f9f9ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f1f3ff;
+  --color-surface-container: #e9edff;
+  --color-surface-container-high: #e1e8fd;
+  --color-surface-container-highest: #dce2f7;
+  
+  --color-on-surface: #141b2b;
+  --color-on-surface-variant: #434655;
+  --color-outline: #737686;
+  --color-outline-variant: #c3c6d7;
+  
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* Material Symbols Outlined settings */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+/* Verification bar custom transitions */
+.verification-bar-segment {
+  height: 6px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+}
+
+.verification-bar-segment:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+/* Paper trail motif: cards representing verified evidence */
+.paper-trail-card {
+  position: relative;
+  background-color: white;
+  border: 1px solid #c3c6d7;
+  border-radius: 0.25rem;
+}
+
+.paper-trail-card::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: -3px;
+  bottom: -3px;
+  border: 1px solid #c3c6d7;
+  z-index: -1;
+  background-color: white;
+  border-radius: 0.25rem;
+  pointer-events: none;
+}
+
+/* Deeper paper trail stack for dossiers/resumes */
+.paper-stack {
+  position: relative;
+  background-color: white;
+  border: 1px solid #c3c6d7;
+  border-radius: 0.25rem;
+}
+
+.paper-stack::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: -4px;
+  bottom: -4px;
+  border: 1px solid #c3c6d7;
+  z-index: -1;
+  background-color: white;
+  border-radius: 0.25rem;
+  pointer-events: none;
+}
+
+.paper-stack::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: -8px;
+  bottom: -8px;
+  border: 1px solid #c3c6d7;
+  z-index: -2;
+  background-color: white;
+  border-radius: 0.25rem;
+  pointer-events: none;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f3ff;
+}
+::-webkit-scrollbar-thumb {
+  background: #c3c6d7;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #737686;
+}
+
+body {
+  background-color: #f9f9ff;
+  color: #141b2b;
+  font-family: 'Inter', sans-serif;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

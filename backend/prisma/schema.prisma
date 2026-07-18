@@ -1,0 +1,180 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User & Auth Entities
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  passwordHash  String
+  role          Role
+  emailVerified Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  refreshTokens RefreshToken[]
+  recruiter     Recruiter?
+  candidate     Candidate?
+}
+
+enum Role {
+  RECRUITER
+  CANDIDATE
+  ADMIN
+}
+
+model RefreshToken {
+  id        String    @id @default(cuid())
+  tokenHash String
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  revokedAt DateTime?
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+}
+
+// Recruiting Core Entities
+model Recruiter {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName String
+  department  String
+  jobs        Job[]
+}
+
+model Candidate {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  phone        String?
+  location     String?
+  skills       String[]
+  resumes      Resume[]
+  applications Application[]
+}
+
+model Job {
+  id           String        @id @default(cuid())
+  title        String
+  description  String
+  requirements String[]
+  recruiterId  String
+  recruiter    Recruiter     @relation(fields: [recruiterId], references: [id], onDelete: Cascade)
+  applications Application[]
+  status       JobStatus     @default(OPEN)
+  createdAt    DateTime      @default(now())
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+model Application {
+  id          String        @id @default(cuid())
+  jobId       String
+  job         Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  candidateId String
+  candidate   Candidate     @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  resumeId    String?
+  resume      Resume?       @relation(fields: [resumeId], references: [id])
+  stage       PipelineStage @default(APPLIED)
+  atsScore    Int?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  assessments Assessment[]
+  interviews  Interview[]
+}
+
+enum PipelineStage {
+  APPLIED
+  SCREENING
+  ASSESSMENT
+  INTERVIEW
+  OFFER
+  REJECTED
+}
+
+model Resume {
+  id           String        @id @default(cuid())
+  candidateId  String
+  candidate    Candidate     @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  storageUrl   String
+  parseStatus  ParseStatus   @default(PENDING)
+  parsedJson   Json?
+  atsResult    Json?
+  createdAt    DateTime      @default(now())
+  applications Application[]
+}
+
+enum ParseStatus {
+  PENDING
+  PARSING
+  ANALYZING
+  READY
+  FAILED
+}
+
+// Assessment & Proctoring
+model Assessment {
+  id               String           @id @default(cuid())
+  applicationId    String
+  application      Application      @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  status           AssessmentStatus @default(PENDING)
+  score            Int?
+  proctoringScore  Int?
+  tabSwitchesCount Int              @default(0)
+  cameraFlagsCount Int              @default(0)
+  audioFlagsCount  Int              @default(0)
+  codeWritten      String?
+  testCasesPassed  Int?
+  testCasesTotal   Int?
+  createdAt        DateTime         @default(now())
+}
+
+enum AssessmentStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+// Interviews
+model Interview {
+  id                   String          @id @default(cuid())
+  applicationId        String
+  application          Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  scheduledTime        DateTime
+  durationMinutes      Int             @default(45)
+  type                 InterviewType   @default(TECHNICAL)
+  status               InterviewStatus @default(SCHEDULED)
+  evaluationReport     Json?           // AI summary: softSkills, technicalDepth, recommendations
+  transcriptionExcerpt String?
+  createdAt            DateTime        @default(now())
+}
+
+enum InterviewType {
+  TECHNICAL
+  PORTFOLIO
+  SYSTEM_DESIGN
+  SOFT_SKILLS
+}
+
+enum InterviewStatus {
+  SCHEDULED
+  COMPLETED
+  CANCELLED
+}
+
+// Event Store for Kafka Consumer Idempotency
+model ProcessedEvent {
+  id          String   @id @default(cuid())
+  eventId     String   @unique
+  topic       String
+  processedAt DateTime @default(now())
+}
