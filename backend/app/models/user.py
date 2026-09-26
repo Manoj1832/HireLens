@@ -39,5 +39,7 @@ class User(BaseModel):
     cgpa: Optional[float] = None
     company_name: Optional[str] = None
     designation: Optional[str] = None
+    token_version: int = 1
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     last_login_at: Optional[datetime] = None
+

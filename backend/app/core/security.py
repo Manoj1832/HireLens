@@ -7,7 +7,12 @@ from app.core.config import settings
 
 ALGORITHM = "HS256"
 
-def create_access_token(subject: str, role: str, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(
+    subject: str,
+    role: str,
+    expires_delta: Optional[timedelta] = None,
+    token_version: int = 1
+) -> str:
     now_utc = datetime.now(timezone.utc)
     if expires_delta:
         expire = now_utc + expires_delta
@@ -17,11 +22,13 @@ def create_access_token(subject: str, role: str, expires_delta: Optional[timedel
     to_encode: Dict[str, Any] = {
         "sub": str(subject),
         "role": role,
+        "ver": token_version,
         "exp": expire,
         "iat": now_utc
     }
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
 
 def decode_token(token: str) -> Optional[Dict[str, Any]]:
     try:

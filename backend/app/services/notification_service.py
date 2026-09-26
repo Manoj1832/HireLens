@@ -78,8 +78,8 @@ class EmailNotificationChannel(INotificationChannel):
     Renders a safe email template (Section 94: no internal AI/system info exposed)
     and dispatches via an isolated SMTP abstraction.
     
-    In development mode, email is simulated (logged but not sent) to avoid
-    requiring SMTP credentials. The provider can be swapped without changing business logic.
+    Dispatches via live SMTP when credentials (SMTP_HOST, SMTP_USER, SMTP_PASSWORD)
+    are configured; falls back gracefully to logged delivery in dev/test mode.
     """
 
     # Section 94: Safe email templates — no internal AI/system information exposed

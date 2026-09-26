@@ -25,6 +25,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     if user is None:
         raise credentials_exception
 
+    # Enforce token version revocation (A9)
+    token_ver = payload.get("ver")
+    user_token_ver = getattr(user, "token_version", 1)
+    if token_ver is not None and token_ver != user_token_ver:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Session has been revoked. Please log in again.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
     # Enforce active account status
     if getattr(user, "status", None) == UserStatus.SUSPENDED:
         raise HTTPException(
@@ -33,6 +43,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         )
 
     return user
+
 
 def require_role(allowed_roles):
     if not isinstance(allowed_roles, (list, tuple, set)):

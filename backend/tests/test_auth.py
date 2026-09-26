@@ -163,3 +163,26 @@ async def test_student_23z342_login():
         })
         assert verify_res.status_code == 200
         assert verify_res.json()["user"]["role"] == "STUDENT"
+
+@pytest.mark.asyncio
+async def test_token_revocation_via_session_invalidation():
+    """When repo.revoke_user_sessions is called, previous JWT tokens are rejected with 401 Unauthorized."""
+    from app.db.repository import repo
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        login_res = await ac.post("/api/v1/auth/dev-login", json={"role": "STUDENT"})
+        assert login_res.status_code == 200
+        token = login_res.json()["access_token"]
+        user_id = login_res.json()["user"]["id"]
+
+        # Valid request
+        me_res = await ac.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+        assert me_res.status_code == 200
+
+        # Invalidate sessions
+        repo.revoke_user_sessions(user_id)
+
+        # Subsequent request with old token is rejected
+        revoked_res = await ac.get("/api/v1/auth/me", headers={"Authorization": f"Bearer {token}"})
+        assert revoked_res.status_code == 401
+        assert "Session has been revoked" in revoked_res.json()["detail"]
+

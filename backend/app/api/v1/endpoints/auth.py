@@ -108,7 +108,11 @@ async def passkey_login(payload: PasskeyLoginInput):
     user.last_login_at = datetime.now(timezone.utc)
     repo.save_user(user)
     
-    token = create_access_token(subject=user.id, role=user.role.value)
+    token = create_access_token(
+        subject=user.id,
+        role=user.role.value,
+        token_version=getattr(user, "token_version", 1)
+    )
     logger.info(f"Recruiter {email} authenticated via passkey into workspace")
     
     return TokenResponse(
@@ -235,7 +239,11 @@ async def verify_otp(payload: VerifyOTPInput):
     user.last_login_at = datetime.now(timezone.utc)
     repo.save_user(user)
 
-    token = create_access_token(subject=user.id, role=user.role.value)
+    token = create_access_token(
+        subject=user.id,
+        role=user.role.value,
+        token_version=getattr(user, "token_version", 1)
+    )
 
     return TokenResponse(
         access_token=token,
@@ -271,7 +279,11 @@ async def dev_login(payload: DevLoginInput):
 
     user.last_login_at = datetime.now(timezone.utc)
     repo.save_user(user)
-    token = create_access_token(subject=user.id, role=user.role.value)
+    token = create_access_token(
+        subject=user.id,
+        role=user.role.value,
+        token_version=getattr(user, "token_version", 1)
+    )
 
     return TokenResponse(
         access_token=token,

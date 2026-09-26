@@ -138,12 +138,14 @@ class Repository:
         self._notifications: Dict[str, Notification] = {}  # notification_id -> Notification
         self._notification_preferences: Dict[str, NotificationPreferences] = {}  # user_id -> NotificationPreferences
         self._load_otps()
-        self._seed_directory()
+        if settings.APP_ENV != "production":
+            self._seed_directory()
         self._load_profiles()
         self._load_resumes()
         self._load_drives()
         self._load_applications()
-        self._seed_sample_drives()
+        if settings.APP_ENV != "production":
+            self._seed_sample_drives()
         self._load_assessments()
         self._load_questions()
         self._load_attempts()
@@ -152,7 +154,9 @@ class Repository:
         self._load_integrity_reports()
         self._load_notifications()
         self._load_notification_preferences()
-        self._seed_sample_assessments()
+        if settings.APP_ENV != "production":
+            self._seed_sample_assessments()
+
 
     def _seed_directory(self):
         # 1. Institutional Student Directory (PSG College of Technology)
@@ -400,6 +404,17 @@ class Repository:
         self._users[user.email.lower()] = user
         self._users_by_id[user.id] = user
         return user
+
+    def revoke_user_sessions(self, user_id: str) -> bool:
+        """Revokes all active sessions/JWTs for a user by incrementing their token_version."""
+        user = self.get_user_by_id(user_id) or self.get_user_by_email(user_id)
+        if user:
+            user.token_version = getattr(user, "token_version", 1) + 1
+            self.save_user(user)
+            logger.info(f"Revoked all sessions for user {user.id} ({user.email}). New token_version: {user.token_version}")
+            return True
+        return False
+
 
     def list_all_users(self) -> List[User]:
         return list(self._users_by_id.values())
