@@ -1,0 +1,75 @@
+{
+  "best_model": "Regularized_Gradient_Boosting",
+  "model_comparison": {
+    "Regularized_Logistic_Regression": {
+      "cv_accuracy_mean": 0.833,
+      "cv_f1_mean": 0.8461990294475639,
+      "cv_roc_auc_mean": 0.9240829170631717,
+      "train_accuracy": 0.8345,
+      "test_accuracy": 0.847,
+      "test_f1": 0.8582020389249305,
+      "test_precision": 0.8542435424354243,
+      "test_recall": 0.8621973929236499,
+      "test_roc_auc": 0.9406308947798143,
+      "generalization_gap": -0.012499999999999956
+    },
+    "Regularized_Random_Forest": {
+      "cv_accuracy_mean": 0.8167500000000001,
+      "cv_f1_mean": 0.8322058631464273,
+      "cv_roc_auc_mean": 0.9030308584876379,
+      "train_accuracy": 0.862,
+      "test_accuracy": 0.831,
+      "test_f1": 0.842497670083877,
+      "test_precision": 0.8432835820895522,
+      "test_recall": 0.8417132216014898,
+      "test_roc_auc": 0.9169210597230434,
+      "generalization_gap": 0.031000000000000028
+    },
+    "Regularized_Gradient_Boosting": {
+      "cv_accuracy_mean": 0.8365,
+      "cv_f1_mean": 0.8489893790713428,
+      "cv_roc_auc_mean": 0.9210382551602384,
+      "train_accuracy": 0.8925,
+      "test_accuracy": 0.849,
+      "test_f1": 0.8605724838411819,
+      "test_precision": 0.8534798534798534,
+      "test_recall": 0.8677839851024208,
+      "test_roc_auc": 0.9336044177918281,
+      "generalization_gap": 0.04349999999999998
+    }
+  },
+  "feature_importances": {
+    "cgpa": 0.2252,
+    "backlogs_active": 0.1249,
+    "history_of_arrears": 0.1137,
+    "aptitude_score": 0.031,
+    "technical_score": 0.0367,
+    "coding_score": 0.0856,
+    "adaptive_irt_theta": 0.138,
+    "proctoring_trust_score": 0.0672,
+    "projects_count": 0.0695,
+    "internship_months": 0.0549,
+    "certifications_count": 0.0073,
+    "core_skill_match_ratio": 0.0323,
+    "soft_skills_score": 0.0136
+  },
+  "training_metadata": {
+    "sample_count": 5000,
+    "features": [
+      "cgpa",
+      "backlogs_active",
+      "history_of_arrears",
+      "aptitude_score",
+      "technical_score",
+      "coding_score",
+      "adaptive_irt_theta",
+      "proctoring_trust_score",
+      "projects_count",
+      "internship_months",
+      "certifications_count",
+      "core_skill_match_ratio",
+      "soft_skills_score"
+    ],
+    "trained_at": "2026-09-24T18:58:39.955782+00:00"
+  }
+}

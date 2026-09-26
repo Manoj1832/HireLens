@@ -1,0 +1,68 @@
+# ====================================================================
+# HIRELENS DOCKER COMPOSE CONFIGURATION
+# Production-aligned local development for HireLens
+# ====================================================================
+
+services:
+  # 1. FastAPI Modular Monolith Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      network: host
+    container_name: hirelens-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+  # 2. Next.js Web Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      network: host
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:-https://nhgdgwbpkobheragmnur.supabase.co}
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:-sb_publishable_C1fl3XODr813E20H8RziBA_l6KlbYxX}
+    container_name: hirelens-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # 3. Asynchronous Background Worker
+  worker:
+    build:
+      context: ./workers
+      dockerfile: Dockerfile
+      network: host
+    container_name: hirelens-worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  # Optional local Redis: Only runs if explicitly enabled (--profile local-redis)
+  # Default uses cloud Upstash Redis as defined in .env
+  redis:
+    image: redis:7-alpine
+    container_name: hirelens-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    profiles:
+      - local-redis

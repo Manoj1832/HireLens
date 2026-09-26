@@ -1,0 +1,82 @@
+{
+  "best_model": "Regularized_Gradient_Boosting_Regressor",
+  "model_comparison": {
+    "Regularized_Ridge_Regression": {
+      "cv_r2_mean": 0.9452,
+      "train_r2": 0.946,
+      "test_r2": 0.947,
+      "test_mae_lpa": 1.181,
+      "test_rmse_lpa": 1.504,
+      "generalization_gap": -0.0011
+    },
+    "Regularized_Random_Forest_Regressor": {
+      "cv_r2_mean": 0.8902,
+      "train_r2": 0.9106,
+      "test_r2": 0.8887,
+      "test_mae_lpa": 1.723,
+      "test_rmse_lpa": 2.181,
+      "generalization_gap": 0.0219
+    },
+    "Regularized_Gradient_Boosting_Regressor": {
+      "cv_r2_mean": 0.9685,
+      "train_r2": 0.9802,
+      "test_r2": 0.9655,
+      "test_mae_lpa": 0.971,
+      "test_rmse_lpa": 1.213,
+      "generalization_gap": 0.0146
+    }
+  },
+  "feature_importances": {
+    "cgpa": 0.0701,
+    "backlogs_active": 0.0526,
+    "history_of_arrears": 0.0001,
+    "aptitude_score": 0.0004,
+    "technical_score": 0.0022,
+    "coding_score": 0.1382,
+    "adaptive_irt_theta": 0.6192,
+    "proctoring_trust_score": 0.0019,
+    "projects_count": 0.0169,
+    "internship_months": 0.0283,
+    "certifications_count": 0.0,
+    "core_skill_match_ratio": 0.0406,
+    "soft_skills_score": 0.0019,
+    "department_tier": 0.0277
+  },
+  "ridge_elasticity_coefs": {
+    "cgpa": 1.373,
+    "backlogs_active": -1.513,
+    "history_of_arrears": 0.001,
+    "aptitude_score": 0.022,
+    "technical_score": 0.867,
+    "coding_score": 2.703,
+    "adaptive_irt_theta": 1.617,
+    "proctoring_trust_score": 0.214,
+    "projects_count": 1.0,
+    "internship_months": 1.133,
+    "certifications_count": -0.007,
+    "core_skill_match_ratio": 0.438,
+    "soft_skills_score": 0.254,
+    "department_tier": 1.128
+  },
+  "training_metadata": {
+    "sample_count": 5000,
+    "features": [
+      "cgpa",
+      "backlogs_active",
+      "history_of_arrears",
+      "aptitude_score",
+      "technical_score",
+      "coding_score",
+      "adaptive_irt_theta",
+      "proctoring_trust_score",
+      "projects_count",
+      "internship_months",
+      "certifications_count",
+      "core_skill_match_ratio",
+      "soft_skills_score",
+      "department_tier"
+    ],
+    "trained_at": "2026-09-24T19:20:38.069808+00:00",
+    "target": "expected_ctc_lpa"
+  }
+}
