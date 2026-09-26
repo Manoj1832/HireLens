@@ -3,15 +3,22 @@
 ## 1. Principles & Threat Model
 
 HireLens handles sensitive candidate resumes, educational credentials, and assessment integrity signals. Security is enforced through:
-- **Zero Frontend Trust**: Frontend route guards are for UX only; backend endpoints strictly enforce authorization on every request.
-- **Strict Role-Based Access Control (RBAC)**: Distinct permissions for `STUDENT`, `RECRUITER`, and `COLLEGE_ADMIN`.
-- **Row Level Security (RLS)**: PostgreSQL-level data isolation preventing Horizontal Privilege Escalation (IDOR).
-- **Private S3 Storage**: All resume files are private; presigned URLs with short TTLs (15 mins) are required for all access.
-- **Audit Logging**: Every state modification and sensitive data view is recorded in `audit_logs`.
+- **Zero Frontend Trust**: Frontend route guards are for UX only; backend endpoints strictly enforce authorization and token authenticity on every request.
+- **Strict Role-Based Access Control (RBAC)**: Distinct permissions for `STUDENT`, `RECRUITER`, and `COLLEGE_ADMIN`, enforced via FastAPI dependencies (`get_current_user`, `require_role`).
+- **Account Status Enforcement**: Active validation of `UserStatus.SUSPENDED`, terminating sessions and denying OTP/passkey access.
+- **Cryptographic OTP Generation & Lifecycle**: 6-digit OTPs generated via Python `secrets`, enforced with 10-minute TTL expiration and a 5-failed-attempt lockout.
+- **Environment Isolation**: Dev bypasses and instant access shortcuts are strictly disabled when `APP_ENV=production`.
 
 ---
 
-## 2. Row Level Security (RLS) Policies
+## 2. Access Control & Data Isolation
+
+### Current Implementation:
+- **FastAPI RBAC & Dependency Verification**: Endpoints inspect JWT claims and verify user role, status, and ownership against repository entities before returning or modifying data.
+- **Institutional Domain Restrictions**: Candidate email authentication is restricted to validated institutional domains (e.g., `psgtech.ac.in`, `student.psgtech.ac.in`).
+
+### Target Production Architecture (Planned Phase):
+- **Row Level Security (RLS)**: PostgreSQL-level data isolation preventing Horizontal Privilege Escalation (IDOR) when transitioning from the local repository to Supabase PostgreSQL:
 
 | Table | Actor Role | Permitted Actions | Policy Expression |
 | :--- | :--- | :--- | :--- |
@@ -26,17 +33,22 @@ HireLens handles sensitive candidate resumes, educational credentials, and asses
 
 ---
 
-## 3. Storage Security (S3)
+## 3. Storage Security
 
-1. **Bucket Policies**: Public read/write is completely disabled (`BlockPublicAcls`, `BlockPublicPolicy`, `IgnorePublicAcls`, `RestrictPublicBuckets` set to `true`).
+### Current Implementation:
+- **Local Storage Isolation**: Resumes uploaded during development and local testing are saved to sandboxed paths under `uploads/resumes/{user_id}/` with sanitized filenames.
+
+### Target Production Architecture (Planned Phase):
+1. **Private S3 Bucket Policies**: Public read/write completely disabled (`BlockPublicAcls`, `BlockPublicPolicy`, `IgnorePublicAcls`, `RestrictPublicBuckets` set to `true`).
 2. **Object Keys**: Hashed non-guessable paths: `resumes/{student_id}/{uuid4()}.pdf`.
-3. **Presigned Uploads**: Enforces `Content-Type: application/pdf` and maximum byte length in the presigned policy.
-4. **Presigned Downloads**: Authorized recruiters and students obtain URLs with 15-minute expiration.
+3. **Presigned Uploads & Downloads**: Enforces `Content-Type: application/pdf` and maximum byte length with short-lived (15-minute) expiration.
 
 ---
 
-## 4. Rate Limiting & Input Validation
+## 4. Rate Limiting, OTP Security & Input Validation
 
-- **Authentication Rate Limits**: Maximum 5 OTP requests per email per hour; 5 failed OTP attempts triggers a 15-minute lockout.
-- **Resume Upload Limits**: Maximum 5 resume uploads per 24 hours per student.
-- **Pydantic Validation**: All string inputs are stripped of control characters; IDs must conform to valid UUIDv4 strings.
+- **OTP Cryptography**: Generated with `secrets.choice(string.digits)` preventing pseudorandom predictability.
+- **OTP Expiry & Lockout**: OTP entries expire after 600 seconds (10 minutes). Exceeding 5 incorrect verification attempts locks out the OTP code immediately.
+- **Production Guardrails**: Hardcoded developer OTP (`123456`) and developer bypasses are strictly disallowed when `APP_ENV=production`.
+- **Pydantic Validation**: All string inputs are stripped of control characters; request payloads validate strict Pydantic schemas.
+

@@ -82,14 +82,29 @@ async def passkey_login(payload: PasskeyLoginInput):
     email = payload.email.lower().strip()
     passkey = payload.passkey.strip()
     
-    # Passkey requirement: "HireLens" (case-tolerant)
-    if passkey.lower() != "hirelens":
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid corporate access key. Access requires key: HireLens"
-        )
+    # Environment-aware passkey verification
+    configured_passkey = settings.RECRUITER_PASSKEY
+    if settings.APP_ENV == "production":
+        if not configured_passkey or passkey != configured_passkey:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid corporate access key."
+            )
+    else:
+        valid_keys = {"hirelens", configured_passkey.lower() if configured_passkey else "hirelens"}
+        if passkey.lower() not in valid_keys:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid corporate access key. Access requires key: HireLens"
+            )
     
     user = repo.get_or_create_recruiter(email)
+    if user.status == UserStatus.SUSPENDED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is suspended. Please contact College Administration."
+        )
+
     user.last_login_at = datetime.now(timezone.utc)
     repo.save_user(user)
     
@@ -131,7 +146,6 @@ async def request_otp(payload: RequestOTPInput):
         target_role = UserRole.STUDENT
         is_student_domain = True
     else:
-        # For non-student domains, check if user was invited/provisioned as recruiter or admin
         existing_user = repo.get_user_by_email(email)
         if not existing_user:
             raise HTTPException(
@@ -141,9 +155,32 @@ async def request_otp(payload: RequestOTPInput):
         target_role = existing_user.role
         is_student_domain = False
 
+    # Check suspension
+    existing_user = repo.get_user_by_email(email)
+    if existing_user and existing_user.status == UserStatus.SUSPENDED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is suspended. Please contact College Administration."
+        )
+
     otp = generate_otp(6)
     repo.store_otp(email, otp)
     logger.info(f"Generated OTP for {email} ({target_role}): {otp}")
+
+    # Root Cause Remediation (RC-3): Real OTP delivery via notification service
+    try:
+        from app.services.notification_service import NotificationService
+        from app.models.notification import NotificationType, NotificationChannel
+        NotificationService.dispatch(
+            user_id=email,
+            notification_type=NotificationType.SYSTEM_ALERT,
+            title="Your HireLens Verification Code",
+            message=f"Your one-time login code is: {otp}. This code is valid for 10 minutes. Do not share it with anyone.",
+            metadata={"otp": otp, "alert_message": f"Your verification code is {otp}."},
+            channels=[NotificationChannel.EMAIL],
+        )
+    except Exception as dispatch_err:
+        logger.warning(f"Could not dispatch OTP email to {email}: {dispatch_err}")
 
     return RequestOTPResponse(
         success=True,
@@ -188,6 +225,12 @@ async def verify_otp(payload: VerifyOTPInput):
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Account not found and not eligible for auto-provisioning."
             )
+
+    if user.status == UserStatus.SUSPENDED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is suspended. Please contact College Administration."
+        )
 
     user.last_login_at = datetime.now(timezone.utc)
     repo.save_user(user)

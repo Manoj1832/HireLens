@@ -1,9 +1,10 @@
 import json
 import os
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Dict, List, Optional, Tuple, Any
 from abc import ABC, abstractmethod
+from app.core.config import settings
 from app.models.user import User, UserRole, UserStatus, StudentDirectoryRecord
 from app.models.profile import (
     StudentProfile,
@@ -450,15 +451,19 @@ class Repository:
 
     def store_otp(self, email: str, otp: str):
         email_key = email.lower().strip()
-        self._otps[email_key] = otp
+        self._otps[email_key] = {
+            "otp": otp,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "attempts": 0,
+        }
         self._save_otps()
 
     def verify_otp(self, email: str, otp: str) -> bool:
         email_key = email.lower().strip()
         otp_val = otp.strip()
         
-        # Always accept master dev OTP "123456" in dev mode
-        if otp_val == "123456":
+        # Hard environment gate: Never allow master dev OTP in production
+        if settings.APP_ENV != "production" and otp_val == "123456":
             return True
 
         stored = self._otps.get(email_key)
@@ -466,10 +471,45 @@ class Repository:
             self._load_otps()
             stored = self._otps.get(email_key)
 
-        if stored and stored == otp_val:
-            del self._otps[email_key]
-            self._save_otps()
-            return True
+        if not stored:
+            return False
+
+        # Support both legacy plain string and modern structured dict with TTL
+        if isinstance(stored, dict):
+            # Check 10-minute expiration TTL
+            created_str = stored.get("created_at")
+            if created_str:
+                try:
+                    created_at = datetime.fromisoformat(created_str)
+                    if datetime.now(timezone.utc) - created_at > timedelta(minutes=10):
+                        del self._otps[email_key]
+                        self._save_otps()
+                        logger.warning(f"OTP for {email_key} expired after 10 minutes.")
+                        return False
+                except Exception:
+                    pass
+
+            # Check maximum 5 attempts lockout
+            attempts = stored.get("attempts", 0)
+            if attempts >= 5:
+                del self._otps[email_key]
+                self._save_otps()
+                logger.warning(f"OTP for {email_key} locked out after 5 failed attempts.")
+                return False
+
+            if stored.get("otp") == otp_val:
+                del self._otps[email_key]
+                self._save_otps()
+                return True
+            else:
+                stored["attempts"] = attempts + 1
+                self._save_otps()
+                return False
+        elif isinstance(stored, str):
+            if stored == otp_val:
+                del self._otps[email_key]
+                self._save_otps()
+                return True
 
         return False
 

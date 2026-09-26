@@ -1,4 +1,5 @@
 import os
+import asyncio
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from app.api import deps
@@ -45,8 +46,9 @@ async def upload_resume(
                 detail="Uploaded file is empty.",
             )
 
-        # Validate and parse via ResumeParserService
-        analysis = ResumeParserService.parse_resume(
+        # Validate and parse via ResumeParserService on threadpool to prevent event loop blocking (RC-5)
+        analysis = await asyncio.to_thread(
+            ResumeParserService.parse_resume,
             pdf_bytes=content,
             user_id=current_user.id,
             filename=file.filename,

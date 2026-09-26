@@ -84,7 +84,7 @@ function LoginContent() {
       };
     }
 
-    if (domain === "psgtech.ac.in" || domain === "student.psgtech.ac.in" || domain === "psgtecg.ac.in") {
+    if (domain === "psgtech.ac.in" || domain === "student.psgtech.ac.in") {
       return {
         title: "PSG College of Technology",
         badge: "Verified Student Cohort",
@@ -105,8 +105,11 @@ function LoginContent() {
     };
   }, [email]);
 
-  // 1-Click Fast Instant Login
+  // 1-Click Fast Instant Login (Development/Demo Mode Only - RC-2 Remediation)
+  const isDevMode = process.env.NODE_ENV !== "production";
+
   const handleInstantLogin = async (roleType: "candidate" | "recruiter" | "admin") => {
+    if (!isDevMode) return;
     setError(null);
     setMessage(null);
     setInstantRoleLoading(roleType);
@@ -115,15 +118,19 @@ function LoginContent() {
       if (roleType === "candidate") {
         const studentEmail = "23z342@psgtech.ac.in";
         const otpRes = await requestOtp(studentEmail);
-        const code = otpRes.devOtp || "123456";
-        await verifyOtp(studentEmail, code);
+        if (!otpRes.devOtp) {
+          throw new Error("Dev OTP not available in current environment. Please check email for OTP.");
+        }
+        await verifyOtp(studentEmail, otpRes.devOtp);
       } else if (roleType === "recruiter") {
         await loginWithPasskey("recruiter@microsoft.com", "HireLens");
       } else if (roleType === "admin") {
         const adminEmail = "placements@psgtech.ac.in";
         const otpRes = await requestOtp(adminEmail);
-        const code = otpRes.devOtp || "123456";
-        await verifyOtp(adminEmail, code);
+        if (!otpRes.devOtp) {
+          throw new Error("Dev OTP not available in current environment. Please check email for OTP.");
+        }
+        await verifyOtp(adminEmail, otpRes.devOtp);
       }
     } catch (err: any) {
       setError(err.message || `Failed to sign in as ${roleType}.`);
@@ -356,8 +363,8 @@ function LoginContent() {
                 </p>
               </div>
 
-              {/* 1-Click Fast Launch Portal (Senior Engineer Claude Pattern) */}
-              {step === "EMAIL" && (
+              {/* 1-Click Fast Launch Portal (Development/Evaluation Mode Only) */}
+              {step === "EMAIL" && isDevMode && (
                 <div className="mb-6 rounded-2xl border border-surface-border bg-surface-subtle p-3.5">
                   <div className="flex items-center justify-between mb-2.5">
                     <span className="text-[11px] font-bold text-navy-800 uppercase tracking-wider flex items-center gap-1.5">

@@ -16,10 +16,14 @@ Complies with:
 """
 
 import logging
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from abc import ABC, abstractmethod
 from typing import List, Optional, Tuple, Dict
 from datetime import datetime, timezone
 
+from app.core.config import settings
 from app.models.notification import (
     Notification,
     NotificationType,
@@ -118,11 +122,37 @@ class EmailNotificationChannel(INotificationChannel):
             template = self.EMAIL_TEMPLATES.get(notification.type, notification.message)
             rendered_body = template.format(**notification.metadata) if notification.metadata else template
 
-            # Development mode: simulate sending (log only)
-            logger.info(
-                f"[EMAIL] Simulated delivery to user {notification.user_id} | "
-                f"Subject: {notification.title} | Body: {rendered_body[:120]}..."
-            )
+            # Attempt real SMTP dispatch if configured
+            if settings.SMTP_HOST and settings.SMTP_USER and settings.SMTP_PASSWORD:
+                try:
+                    recipient = None
+                    if "@" in notification.user_id:
+                        recipient = notification.user_id
+                    else:
+                        u = repo.get_user_by_id(notification.user_id) or repo.get_user_by_email(notification.user_id)
+                        if u and hasattr(u, "email"):
+                            recipient = u.email
+
+                    if recipient:
+                        msg = MIMEMultipart("alternative")
+                        msg["Subject"] = notification.title
+                        msg["From"] = settings.EMAIL_FROM or settings.SMTP_USER
+                        msg["To"] = recipient
+                        msg.attach(MIMEText(rendered_body, "plain"))
+
+                        with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT, timeout=10) as server:
+                            server.starttls()
+                            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+                            server.sendmail(msg["From"], [recipient], msg.as_string())
+                        logger.info(f"[EMAIL] Real SMTP dispatch successful to {recipient}")
+                except Exception as smtp_ex:
+                    logger.warning(f"[EMAIL] Real SMTP send failed: {smtp_ex}. Recording as simulated delivery.")
+            else:
+                # Simulated delivery (Dev/Test mode)
+                logger.info(
+                    f"[EMAIL] Simulated delivery to user {notification.user_id} | "
+                    f"Subject: {notification.title} | Body: {rendered_body[:120]}..."
+                )
 
             notification.channel = NotificationChannel.EMAIL
             notification.delivery_status = DeliveryStatus.DELIVERED

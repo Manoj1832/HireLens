@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.security import decode_token
 from app.db.repository import repo
-from app.models.user import User, UserRole
+from app.models.user import User, UserRole, UserStatus
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/verify-otp")
 
@@ -24,6 +24,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         user = repo.get_user_by_email(user_id)
     if user is None:
         raise credentials_exception
+
+    # Enforce active account status
+    if getattr(user, "status", None) == UserStatus.SUSPENDED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is suspended. Please contact College Administration.",
+        )
+
     return user
 
 def require_role(allowed_roles):

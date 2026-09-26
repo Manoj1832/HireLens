@@ -30,8 +30,11 @@ def decode_token(token: str) -> Optional[Dict[str, Any]]:
     except JWTError:
         return None
 
+import secrets
+
 def generate_otp(length: int = 6) -> str:
-    return "".join(random.choices(string.digits, k=length))
+    """Cryptographically secure OTP generation using secrets module."""
+    return "".join(secrets.choice(string.digits) for _ in range(length))
 
 def is_institutional_student_email(email: str) -> bool:
     """
@@ -41,4 +44,4 @@ def is_institutional_student_email(email: str) -> bool:
     if "@" not in email:
         return False
     domain = email.split("@")[1].lower().strip()
-    return domain in settings.COLLEGE_ALLOWED_DOMAINS
+    return domain in settings.ALLOWED_DOMAINS

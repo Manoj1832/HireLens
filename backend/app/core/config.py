@@ -17,12 +17,15 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "development-secret-key-replace-in-production-with-high-entropy-string"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 43200  # 30 days for persistent session stability
 
-    COLLEGE_ALLOWED_DOMAINS_RAW: str = "psgtech.ac.in,student.psgtech.ac.in,psgtecg.ac.in"
+    COLLEGE_ALLOWED_DOMAINS: Optional[str] = None
+    COLLEGE_ALLOWED_DOMAINS_RAW: str = "psgtech.ac.in,student.psgtech.ac.in"
+    RECRUITER_PASSKEY: Optional[str] = None
 
     @computed_field
     @property
-    def COLLEGE_ALLOWED_DOMAINS(self) -> List[str]:
-        return [d.strip().lower() for d in self.COLLEGE_ALLOWED_DOMAINS_RAW.split(",") if d.strip()]
+    def ALLOWED_DOMAINS(self) -> List[str]:
+        raw = self.COLLEGE_ALLOWED_DOMAINS or self.COLLEGE_ALLOWED_DOMAINS_RAW
+        return [d.strip().lower() for d in raw.split(",") if d.strip()]
 
     # Database (Supabase PostgreSQL / Local)
     DATABASE_URL: str = "postgresql+asyncpg://postgres:postgrespassword@localhost:5432/hirelens"
