@@ -54,6 +54,27 @@ class UserResponse(BaseModel):
 class DevLoginInput(BaseModel):
     role: UserRole
 
+class RegisterInput(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: str
+    role: UserRole = UserRole.STUDENT
+    department: Optional[str] = None
+    register_number: Optional[str] = None
+    batch: Optional[str] = None
+    graduation_year: Optional[int] = None
+    cgpa: Optional[float] = None
+    company_name: Optional[str] = None
+    designation: Optional[str] = None
+
+class VerifyEmailInput(BaseModel):
+    email: EmailStr
+    code: str
+
+class PasswordLoginInput(BaseModel):
+    email: EmailStr
+    password: str
+
 class StudentDirectoryCreateInput(BaseModel):
     register_number: str
     name: str
@@ -67,3 +88,4 @@ class StudentDirectoryImportInput(BaseModel):
     students: List[StudentDirectoryCreateInput]
 
 TokenResponse.model_rebuild()
+

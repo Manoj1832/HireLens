@@ -44,7 +44,7 @@ export default function Navbar() {
       case "STUDENT":
         return {
           label: "Verified Student",
-          style: "bg-blue-50 text-blue-700 border-blue-200",
+          style: "bg-cyan-500/10 text-cyan-300 border-cyan-500/30",
           icon: GraduationCap,
           portalHref: "/student",
           portalName: "Student Portal",
@@ -52,7 +52,7 @@ export default function Navbar() {
       case "RECRUITER":
         return {
           label: "Corporate Recruiter",
-          style: "bg-indigo-50 text-indigo-700 border-indigo-200",
+          style: "bg-purple-500/10 text-purple-300 border-purple-500/30",
           icon: Briefcase,
           portalHref: "/recruiter",
           portalName: "Recruiter Workspace",
@@ -60,7 +60,7 @@ export default function Navbar() {
       case "COLLEGE_ADMIN":
         return {
           label: "Placement Admin",
-          style: "bg-emerald-50 text-emerald-700 border-emerald-200",
+          style: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
           icon: Building2,
           portalHref: "/admin",
           portalName: "Placement Office",
@@ -68,7 +68,7 @@ export default function Navbar() {
       default:
         return {
           label: "Member",
-          style: "bg-slate-50 text-slate-700 border-slate-200",
+          style: "bg-slate-800 text-slate-300 border-slate-700",
           icon: UserIcon,
           portalHref: "/",
           portalName: "Home",
@@ -89,24 +89,24 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-surface-border bg-white/95 backdrop-blur-md shadow-xs">
+      <header className="sticky top-0 z-40 border-b border-white/[0.08] bg-obsidian-950/80 backdrop-blur-xl shadow-glass">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white font-bold tracking-tight shadow-sm group-hover:bg-brand-700 transition">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 text-white font-black text-sm tracking-tight shadow-cyber-glow group-hover:scale-105 transition-all duration-300">
               HL
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-lg font-extrabold tracking-tight text-navy-900">
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-black tracking-tight text-white group-hover:text-cyan-300 transition">
                   HireLens
                 </span>
-                <span className="rounded bg-brand-50 px-1.5 py-0.5 text-[10px] font-bold text-brand-700 uppercase tracking-wide border border-brand-200">
-                  Campus
+                <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-widest border border-cyan-500/20 shadow-xs">
+                  AI CORE
                 </span>
               </div>
-              <p className="text-[11px] text-navy-500 hidden sm:block -mt-0.5">
-                College Recruitment & Assessment Platform
+              <p className="text-[10px] text-slate-400 hidden sm:block -mt-0.5 font-medium tracking-wide">
+                Autonomous Talent Intelligence Platform
               </p>
             </div>
           </Link>
@@ -118,33 +118,33 @@ export default function Navbar() {
               <div className="flex items-center gap-2">
                 <Link
                   href={roleMeta.portalHref}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition ${
+                  className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition ${
                     pathname.startsWith(roleMeta.portalHref)
-                      ? "bg-brand-50 text-brand-700 border border-brand-200"
-                      : "text-navy-700 hover:bg-surface-subtle"
+                      ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 shadow-xs"
+                      : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
                   }`}
                 >
-                  <roleMeta.icon className="h-4 w-4 text-brand-600" />
+                  <roleMeta.icon className="h-4 w-4 text-cyan-400" />
                   <span>{roleMeta.portalName}</span>
                 </Link>
               </div>
             ) : (
-              <div className="hidden md:flex items-center gap-2 text-xs font-semibold text-navy-600">
+              <div className="hidden md:flex items-center gap-1 text-xs font-semibold text-slate-400">
                 <Link
                   href="/student"
-                  className="px-2.5 py-1.5 rounded-lg hover:text-navy-900 hover:bg-surface-subtle transition"
+                  className="px-3 py-1.5 rounded-xl hover:text-white hover:bg-white/[0.06] transition"
                 >
                   Students
                 </Link>
                 <Link
                   href="/recruiter"
-                  className="px-2.5 py-1.5 rounded-lg hover:text-navy-900 hover:bg-surface-subtle transition"
+                  className="px-3 py-1.5 rounded-xl hover:text-white hover:bg-white/[0.06] transition"
                 >
                   Recruiters
                 </Link>
                 <Link
                   href="/admin"
-                  className="px-2.5 py-1.5 rounded-lg hover:text-navy-900 hover:bg-surface-subtle transition"
+                  className="px-3 py-1.5 rounded-xl hover:text-white hover:bg-white/[0.06] transition"
                 >
                   Placement Cell
                 </Link>
@@ -153,7 +153,7 @@ export default function Navbar() {
 
             {/* User Session Area */}
             {isLoading ? (
-              <div className="h-8 w-24 rounded-lg bg-slate-100 animate-pulse" />
+              <div className="h-8 w-24 rounded-lg bg-slate-800/60 animate-pulse" />
             ) : isAuthenticated && user ? (
               <div className="flex items-center gap-2">
                 <NotificationBell />
@@ -162,24 +162,24 @@ export default function Navbar() {
                   <button
                     type="button"
                     onClick={() => setDropdownOpen(!dropdownOpen)}
-                    className="flex items-center gap-2 rounded-xl border border-surface-border bg-surface-subtle px-2.5 py-1.5 hover:bg-surface-accent hover:border-brand-200 transition focus:outline-none focus:ring-2 focus:ring-brand-500/20"
+                    className="flex items-center gap-2.5 rounded-xl border border-white/10 bg-white/[0.04] px-2.5 py-1.5 hover:bg-white/[0.08] hover:border-cyan-500/30 transition focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
                   >
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand-600 text-white font-bold text-xs shadow-xs">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-tr from-cyan-500 to-indigo-600 text-white font-bold text-xs shadow-xs">
                     {userInitials}
                   </div>
                   <div className="text-left hidden sm:block">
-                    <span className="block text-xs font-bold text-navy-900 leading-tight max-w-[120px] truncate">
+                    <span className="block text-xs font-bold text-white leading-tight max-w-[120px] truncate">
                       {user.full_name}
                     </span>
-                    <span className="block text-[10px] text-navy-500 font-medium leading-tight">
+                    <span className="block text-[10px] text-slate-400 font-medium leading-tight">
                       {user.role === "STUDENT"
                         ? user.register_number || "Student"
                         : user.role === "COLLEGE_ADMIN"
-                        ? "Dean of Placements"
+                        ? "Placement Dean"
                         : user.company_name || "Recruiter"}
                     </span>
                   </div>
-                  <ChevronDown className="h-3.5 w-3.5 text-navy-400" />
+                  <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
                 </button>
 
                 {/* Direct 1-Click Sign Out Button */}
@@ -187,24 +187,24 @@ export default function Navbar() {
                   type="button"
                   onClick={logout}
                   title="Sign out of HireLens"
-                  className="rounded-lg border border-surface-border p-1.5 text-navy-500 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-200 transition hidden sm:inline-flex"
+                  className="rounded-xl border border-white/10 p-2 text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 transition hidden sm:inline-flex"
                 >
                   <LogOut className="h-4 w-4" />
                 </button>
 
                 {/* Profile Dropdown Menu */}
                 {dropdownOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-surface-border bg-white p-4 shadow-xl shadow-blue-900/10 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
+                  <div className="absolute right-0 top-full mt-2 w-72 rounded-2xl border border-white/10 bg-obsidian-900/95 p-4 shadow-glass z-50 animate-in fade-in slide-in-from-top-1 duration-150 backdrop-blur-2xl">
                     {/* User Header */}
-                    <div className="flex items-start gap-3 pb-3 border-b border-surface-border">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 text-white font-bold text-sm shadow-xs">
+                    <div className="flex items-start gap-3 pb-3 border-b border-white/[0.08]">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 text-white font-bold text-sm shadow-xs">
                         {userInitials}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-bold text-navy-900 truncate">
+                        <h4 className="text-sm font-bold text-white truncate">
                           {user.full_name}
                         </h4>
-                        <p className="text-xs text-navy-500 truncate">{user.email}</p>
+                        <p className="text-xs text-slate-400 truncate">{user.email}</p>
                         {roleMeta && (
                           <span
                             className={`mt-1.5 inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${roleMeta.style}`}
@@ -217,31 +217,31 @@ export default function Navbar() {
                     </div>
 
                     {/* Academic / Professional Highlights */}
-                    <div className="py-3 space-y-1.5 text-xs text-navy-600 border-b border-surface-border">
+                    <div className="py-3 space-y-1.5 text-xs text-slate-300 border-b border-white/[0.08]">
                       {user.role === "STUDENT" && (
                         <>
                           <div className="flex justify-between">
-                            <span className="text-navy-400">Roll Number:</span>
-                            <span className="font-semibold text-navy-900 font-mono">
+                            <span className="text-slate-400">Roll Number:</span>
+                            <span className="font-semibold text-white font-mono">
                               {user.register_number || "Not assigned"}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-navy-400">Department:</span>
-                            <span className="font-semibold text-navy-900 text-right truncate max-w-[140px]">
+                            <span className="text-slate-400">Department:</span>
+                            <span className="font-semibold text-white text-right truncate max-w-[140px]">
                               {user.department || "Engineering"}
                             </span>
                           </div>
                           {user.batch && (
                             <div className="flex justify-between">
-                              <span className="text-navy-400">Cohort Batch:</span>
-                              <span className="font-semibold text-navy-900">{user.batch}</span>
+                              <span className="text-slate-400">Cohort Batch:</span>
+                              <span className="font-semibold text-white">{user.batch}</span>
                             </div>
                           )}
                           {user.cgpa && (
                             <div className="flex justify-between">
-                              <span className="text-navy-400">Verified CGPA:</span>
-                              <span className="font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                              <span className="text-slate-400">Verified CGPA:</span>
+                              <span className="font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 font-mono">
                                 {user.cgpa.toFixed(2)}
                               </span>
                             </div>
@@ -252,14 +252,14 @@ export default function Navbar() {
                       {user.role === "RECRUITER" && (
                         <>
                           <div className="flex justify-between">
-                            <span className="text-navy-400">Company:</span>
-                            <span className="font-semibold text-navy-900">
+                            <span className="text-slate-400">Company:</span>
+                            <span className="font-semibold text-white">
                               {user.company_name || "Enterprise Partner"}
                             </span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-navy-400">Designation:</span>
-                            <span className="font-semibold text-navy-900">
+                            <span className="text-slate-400">Designation:</span>
+                            <span className="font-semibold text-white">
                               {user.designation || "Talent Acquisition"}
                             </span>
                           </div>
@@ -269,12 +269,12 @@ export default function Navbar() {
                       {user.role === "COLLEGE_ADMIN" && (
                         <>
                           <div className="flex justify-between">
-                            <span className="text-navy-400">Authority:</span>
-                            <span className="font-semibold text-navy-900">Placement Cell</span>
+                            <span className="text-slate-400">Authority:</span>
+                            <span className="font-semibold text-white">Placement Cell</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-navy-400">Designation:</span>
-                            <span className="font-semibold text-navy-900">
+                            <span className="text-slate-400">Designation:</span>
+                            <span className="font-semibold text-white">
                               {user.designation || "Dean of Placements"}
                             </span>
                           </div>
@@ -282,8 +282,8 @@ export default function Navbar() {
                       )}
 
                       <div className="flex justify-between pt-1">
-                        <span className="text-navy-400">Session Security:</span>
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700">
+                        <span className="text-slate-400">Session Security:</span>
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400">
                           <ShieldCheck className="h-3 w-3" />
                           <span>Active (Verified)</span>
                         </span>
@@ -298,10 +298,10 @@ export default function Navbar() {
                           setDropdownOpen(false);
                           setProfileModalOpen(true);
                         }}
-                        className="w-full rounded-xl bg-surface-subtle hover:bg-surface-accent border border-surface-border px-3 py-2 text-xs font-semibold text-navy-800 transition flex items-center justify-between"
+                        className="w-full rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 hover:text-white transition flex items-center justify-between"
                       >
                         <span>View Full Profile</span>
-                        <ExternalLink className="h-3.5 w-3.5 text-navy-400" />
+                        <ExternalLink className="h-3.5 w-3.5 text-slate-400" />
                       </button>
 
                       <button
@@ -310,7 +310,7 @@ export default function Navbar() {
                           setDropdownOpen(false);
                           logout();
                         }}
-                        className="w-full rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-2 text-xs font-bold transition flex items-center justify-center gap-1.5"
+                        className="w-full rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 px-3 py-2 text-xs font-bold transition flex items-center justify-center gap-1.5"
                       >
                         <LogOut className="h-3.5 w-3.5" />
                         <span>Sign Out of HireLens</span>
@@ -323,9 +323,9 @@ export default function Navbar() {
           ) : (
               <Link
                 href="/login"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-brand-700 transition"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 px-4 py-2 text-xs font-bold text-white shadow-cyber-glow hover:opacity-95 transition"
               >
-                <span>Sign In</span>
+                <span>Access Portal</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             )}
@@ -335,27 +335,27 @@ export default function Navbar() {
 
       {/* Profile Details Dialog Modal */}
       {profileModalOpen && user && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-900/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="w-full max-w-lg rounded-3xl border border-surface-border bg-white p-6 sm:p-8 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-obsidian-900/95 p-6 sm:p-8 shadow-2xl relative text-slate-100 backdrop-blur-2xl">
             <button
               type="button"
               onClick={() => setProfileModalOpen(false)}
-              className="absolute right-5 top-5 rounded-full p-1.5 text-navy-400 hover:bg-surface-subtle hover:text-navy-700 transition"
+              className="absolute right-5 top-5 rounded-full p-2 text-slate-400 hover:bg-white/10 hover:text-white transition"
             >
               <X className="h-5 w-5" />
             </button>
 
             {/* Modal Header */}
             <div className="flex items-center gap-4 mb-6">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-600 text-white font-extrabold text-xl shadow-md shadow-brand-600/20">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-500 to-indigo-600 text-white font-black text-xl shadow-cyber-glow">
                 {userInitials}
               </div>
               <div>
-                <h3 className="text-xl font-bold text-navy-900">{user.full_name}</h3>
-                <p className="text-xs text-navy-500">{user.email}</p>
+                <h3 className="text-xl font-bold text-white">{user.full_name}</h3>
+                <p className="text-xs text-slate-400 font-mono">{user.email}</p>
                 {roleMeta && (
                   <span
-                    className={`mt-1 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${roleMeta.style}`}
+                    className={`mt-1.5 inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${roleMeta.style}`}
                   >
                     <roleMeta.icon className="h-3.5 w-3.5" />
                     <span>{roleMeta.label}</span>
@@ -365,31 +365,31 @@ export default function Navbar() {
             </div>
 
             {/* Detailed Metadata Grid */}
-            <div className="rounded-2xl border border-surface-border bg-surface-subtle p-4 space-y-3 text-xs mb-6">
-              <div className="flex items-center justify-between pb-2 border-b border-surface-border">
-                <span className="font-medium text-navy-500">Unique Identity ID</span>
-                <span className="font-mono text-navy-900 font-semibold">{user.id}</span>
+            <div className="rounded-2xl border border-white/10 bg-obsidian-950/60 p-4 space-y-3 text-xs mb-6">
+              <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+                <span className="font-medium text-slate-400">Unique Identity ID</span>
+                <span className="font-mono text-cyan-300 font-semibold">{user.id}</span>
               </div>
 
               {user.role === "STUDENT" && (
                 <>
-                  <div className="flex items-center justify-between pb-2 border-b border-surface-border">
-                    <span className="font-medium text-navy-500">Student Roll Number</span>
-                    <span className="font-mono text-navy-900 font-bold text-sm">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+                    <span className="font-medium text-slate-400">Student Roll Number</span>
+                    <span className="font-mono text-white font-bold text-sm">
                       {user.register_number || "23Z342"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between pb-2 border-b border-surface-border">
-                    <span className="font-medium text-navy-500">Academic Department</span>
-                    <span className="text-navy-900 font-semibold">{user.department || "CSE"}</span>
+                  <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+                    <span className="font-medium text-slate-400">Academic Department</span>
+                    <span className="text-white font-semibold">{user.department || "CSE"}</span>
                   </div>
-                  <div className="flex items-center justify-between pb-2 border-b border-surface-border">
-                    <span className="font-medium text-navy-500">Graduation Batch</span>
-                    <span className="text-navy-900 font-semibold">{user.batch || "2023-2027"}</span>
+                  <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+                    <span className="font-medium text-slate-400">Graduation Batch</span>
+                    <span className="text-white font-semibold">{user.batch || "2023-2027"}</span>
                   </div>
-                  <div className="flex items-center justify-between pb-2 border-b border-surface-border">
-                    <span className="font-medium text-navy-500">Verified CGPA</span>
-                    <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+                    <span className="font-medium text-slate-400">Verified CGPA</span>
+                    <span className="font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 font-mono">
                       {user.cgpa ? user.cgpa.toFixed(2) : "8.80"} / 10.0
                     </span>
                   </div>
@@ -398,15 +398,15 @@ export default function Navbar() {
 
               {user.role === "RECRUITER" && (
                 <>
-                  <div className="flex items-center justify-between pb-2 border-b border-surface-border">
-                    <span className="font-medium text-navy-500">Corporate Enterprise</span>
-                    <span className="text-navy-900 font-bold">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+                    <span className="font-medium text-slate-400">Corporate Enterprise</span>
+                    <span className="text-white font-bold">
                       {user.company_name || "Enterprise Partner"}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between pb-2 border-b border-surface-border">
-                    <span className="font-medium text-navy-500">Title / Designation</span>
-                    <span className="text-navy-900 font-semibold">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+                    <span className="font-medium text-slate-400">Title / Designation</span>
+                    <span className="text-white font-semibold">
                       {user.designation || "Talent Acquisition Lead"}
                     </span>
                   </div>
@@ -415,13 +415,13 @@ export default function Navbar() {
 
               {user.role === "COLLEGE_ADMIN" && (
                 <>
-                  <div className="flex items-center justify-between pb-2 border-b border-surface-border">
-                    <span className="font-medium text-navy-500">Administrative Office</span>
-                    <span className="text-navy-900 font-bold">College Placement Cell</span>
+                  <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+                    <span className="font-medium text-slate-400">Administrative Office</span>
+                    <span className="text-white font-bold">College Placement Cell</span>
                   </div>
-                  <div className="flex items-center justify-between pb-2 border-b border-surface-border">
-                    <span className="font-medium text-navy-500">Position</span>
-                    <span className="text-navy-900 font-semibold">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/[0.08]">
+                    <span className="font-medium text-slate-400">Position</span>
+                    <span className="text-white font-semibold">
                       {user.designation || "Dean of Placement & Training"}
                     </span>
                   </div>
@@ -429,8 +429,8 @@ export default function Navbar() {
               )}
 
               <div className="flex items-center justify-between">
-                <span className="font-medium text-navy-500">Account Authorization</span>
-                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 font-bold text-emerald-700">
+                <span className="font-medium text-slate-400">Account Authorization</span>
+                <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 font-bold text-emerald-400">
                   <ShieldCheck className="h-3.5 w-3.5" />
                   <span>ACTIVE (Row Level Isolated)</span>
                 </span>
@@ -442,9 +442,9 @@ export default function Navbar() {
               <button
                 type="button"
                 onClick={() => setProfileModalOpen(false)}
-                className="flex-1 rounded-xl border border-surface-border py-2.5 text-xs font-semibold text-navy-700 hover:bg-surface-subtle transition"
+                className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-semibold text-slate-300 hover:text-white hover:bg-white/[0.08] transition"
               >
-                Close Profile
+                Close
               </button>
               <button
                 type="button"
@@ -452,7 +452,7 @@ export default function Navbar() {
                   setProfileModalOpen(false);
                   logout();
                 }}
-                className="rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 px-4 py-2.5 text-xs font-bold transition flex items-center gap-1.5"
+                className="rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 border border-rose-500/20 px-4 py-2.5 text-xs font-bold transition flex items-center gap-1.5"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 <span>Sign Out</span>

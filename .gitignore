@@ -140,3 +140,7 @@ Thumbs.db
 *.swp
 *.swo
 *~
+cdk.out/
+**/cdk.out/
+cdk.context.json
+**/cdk.context.json

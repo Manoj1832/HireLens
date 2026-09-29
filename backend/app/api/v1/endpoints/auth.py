@@ -5,7 +5,9 @@ from app.core.config import settings
 from app.core.security import (
     create_access_token,
     generate_otp,
-    is_institutional_student_email
+    is_institutional_student_email,
+    get_password_hash,
+    verify_password
 )
 from app.db.repository import repo
 from app.models.user import User, UserRole, UserStatus, StudentDirectoryRecord
@@ -18,8 +20,12 @@ from app.schemas.auth import (
     DevLoginInput,
     PasskeyLoginInput,
     AuthIdentifyInput,
-    AuthIdentifyResponse
+    AuthIdentifyResponse,
+    RegisterInput,
+    VerifyEmailInput,
+    PasswordLoginInput
 )
+
 from app.api.deps import get_current_user
 
 logger = logging.getLogger("hirelens.auth")
@@ -121,7 +127,161 @@ async def passkey_login(payload: PasskeyLoginInput):
         user=map_user_to_response(user)
     )
 
+@router.post("/register")
+async def register_account(payload: RegisterInput):
+    """
+    Registers a new user account with hashed password, sets status to PENDING_VERIFICATION,
+    and sends an email verification code.
+    """
+    email = payload.email.lower().strip()
+    existing_user = repo.get_user_by_email(email)
+
+    if existing_user:
+        if existing_user.status == UserStatus.ACTIVE and existing_user.is_email_verified:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="An active account with this email address already exists. Please log in."
+            )
+        # Update existing pending user
+        user = existing_user
+        user.full_name = payload.full_name
+        user.hashed_password = get_password_hash(payload.password)
+        user.role = payload.role
+    else:
+        user = User(
+            email=email,
+            role=payload.role,
+            status=UserStatus.PENDING_VERIFICATION,
+            full_name=payload.full_name,
+            department=payload.department,
+            register_number=payload.register_number,
+            batch=payload.batch,
+            graduation_year=payload.graduation_year,
+            cgpa=payload.cgpa,
+            company_name=payload.company_name,
+            designation=payload.designation,
+            hashed_password=get_password_hash(payload.password),
+            is_email_verified=False
+        )
+
+    repo.save_user(user)
+
+    # Generate and store verification code
+    code = generate_otp(6)
+    repo.store_otp(email, code)
+    logger.info(f"Generated email verification code for {email}: {code}")
+
+    # Dispatch email verification notification
+    from app.services.notification_service import NotificationService
+    from app.models.notification import NotificationType
+    NotificationService.dispatch(
+        user_id=email,
+        notification_type=NotificationType.SYSTEM_ALERT,
+        title="Verify your HireLens Account",
+        message=f"Welcome to HireLens, {payload.full_name}! Your email verification code is: {code}. Enter this code to activate your account.",
+        metadata={"otp": code, "verification_code": code}
+    )
+
+    return {
+        "success": True,
+        "message": "Account created. A verification code has been sent to your email address.",
+        "email": email,
+        "dev_code": code if settings.APP_ENV != "production" else None
+    }
+
+@router.post("/verify-email", response_model=TokenResponse)
+async def verify_email(payload: VerifyEmailInput):
+    """
+    Verifies the user's email with the one-time code and activates their account.
+    """
+    email = payload.email.lower().strip()
+    is_valid = repo.verify_otp(email, payload.code)
+
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired verification code. Please check your email or request a new code."
+        )
+
+    user = repo.get_user_by_email(email)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User account not found for this email."
+        )
+
+    user.status = UserStatus.ACTIVE
+    user.is_email_verified = True
+    user.last_login_at = datetime.now(timezone.utc)
+    repo.save_user(user)
+
+    token = create_access_token(
+        subject=user.id,
+        role=user.role.value,
+        token_version=getattr(user, "token_version", 1)
+    )
+
+    logger.info(f"User {email} successfully verified email and activated account.")
+
+    return TokenResponse(
+        access_token=token,
+        token_type="bearer",
+        user=map_user_to_response(user)
+    )
+
+@router.post("/login-password", response_model=TokenResponse)
+async def login_with_password(payload: PasswordLoginInput):
+    """
+    Authenticates a user with email and password.
+    Enforces active account status and email verification.
+    """
+    email = payload.email.lower().strip()
+    user = repo.get_user_by_email(email)
+
+    if not user or not user.hashed_password:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password."
+        )
+
+    if not verify_password(payload.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid email or password."
+        )
+
+    if user.status == UserStatus.SUSPENDED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account is suspended. Please contact College Administration."
+        )
+
+    if user.status == UserStatus.PENDING_VERIFICATION or not user.is_email_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Your email address has not been verified yet. Please enter the verification code sent to your email."
+        )
+
+
+    user.last_login_at = datetime.now(timezone.utc)
+    repo.save_user(user)
+
+    token = create_access_token(
+        subject=user.id,
+        role=user.role.value,
+        token_version=getattr(user, "token_version", 1)
+    )
+
+    logger.info(f"User {email} authenticated via email & password.")
+
+    return TokenResponse(
+        access_token=token,
+        token_type="bearer",
+        user=map_user_to_response(user)
+    )
+
 @router.post("/request-otp", response_model=RequestOTPResponse)
+
 async def request_otp(payload: RequestOTPInput):
     email = payload.email.lower().strip()
     

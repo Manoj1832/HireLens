@@ -44,18 +44,18 @@ function StudentDashboardContent() {
 
   return (
     <div className="space-y-6">
-      {/* Modern Segmented Navigation Bar - Zepto / Uber style */}
-      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-white border border-surface-border shadow-xs overflow-x-auto no-scrollbar">
+      {/* Modern Segmented Navigation Bar - Dark AI Style */}
+      <div className="flex items-center gap-2 p-1.5 rounded-2xl bg-obsidian-850/80 border border-white/10 shadow-glass backdrop-blur-xl overflow-x-auto no-scrollbar">
         <button
           type="button"
           onClick={() => switchTab("drives")}
           className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 text-xs font-bold rounded-xl transition whitespace-nowrap ${
             activeTab === "drives"
-              ? "bg-brand-600 text-white shadow-xs"
-              : "text-navy-600 hover:text-navy-950 hover:bg-surface-subtle"
+              ? "bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white shadow-cyber-glow"
+              : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
           }`}
         >
-          <Briefcase className={`h-4 w-4 ${activeTab === "drives" ? "text-white" : "text-brand-600"}`} />
+          <Briefcase className={`h-4 w-4 ${activeTab === "drives" ? "text-white" : "text-cyan-400"}`} />
           <span>Campus Placement Drives</span>
         </button>
 
@@ -64,16 +64,16 @@ function StudentDashboardContent() {
           onClick={() => switchTab("profile")}
           className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 text-xs font-bold rounded-xl transition whitespace-nowrap ${
             activeTab === "profile"
-              ? "bg-brand-600 text-white shadow-xs"
-              : "text-navy-600 hover:text-navy-950 hover:bg-surface-subtle"
+              ? "bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white shadow-cyber-glow"
+              : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
           }`}
         >
-          <UserCheck className={`h-4 w-4 ${activeTab === "profile" ? "text-white" : "text-brand-600"}`} />
+          <UserCheck className={`h-4 w-4 ${activeTab === "profile" ? "text-white" : "text-cyan-400"}`} />
           <span>My Verified Profile</span>
           <span className={`rounded-full text-[10px] px-2 py-0.5 font-bold ${
             activeTab === "profile"
               ? "bg-white/20 text-white"
-              : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+              : "bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
           }`}>
             Verified
           </span>
@@ -84,11 +84,11 @@ function StudentDashboardContent() {
           onClick={() => switchTab("resume")}
           className={`flex items-center gap-2.5 px-4 sm:px-5 py-2.5 text-xs font-bold rounded-xl transition whitespace-nowrap ${
             activeTab === "resume"
-              ? "bg-brand-600 text-white shadow-xs"
-              : "text-navy-600 hover:text-navy-950 hover:bg-surface-subtle"
+              ? "bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 text-white shadow-cyber-glow"
+              : "text-slate-400 hover:text-white hover:bg-white/[0.04]"
           }`}
         >
-          <FileText className={`h-4 w-4 ${activeTab === "resume" ? "text-white" : "text-brand-600"}`} />
+          <FileText className={`h-4 w-4 ${activeTab === "resume" ? "text-white" : "text-cyan-400"}`} />
           <span>Resume & Evidence Intelligence</span>
         </button>
       </div>

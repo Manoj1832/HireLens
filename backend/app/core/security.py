@@ -52,3 +52,23 @@ def is_institutional_student_email(email: str) -> bool:
         return False
     domain = email.split("@")[1].lower().strip()
     return domain in settings.ALLOWED_DOMAINS
+
+
+import bcrypt
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifies a plain-text password against a stored bcrypt hash."""
+    if not plain_password or not hashed_password:
+        return False
+    try:
+        return bcrypt.checkpw(plain_password[:72].encode("utf-8"), hashed_password.encode("utf-8"))
+    except Exception:
+        return False
+
+def get_password_hash(password: str) -> str:
+    """Generates a secure bcrypt hash for a user password."""
+    pwd_bytes = password[:72].encode("utf-8")
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
+
+

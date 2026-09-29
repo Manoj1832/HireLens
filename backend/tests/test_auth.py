@@ -186,3 +186,61 @@ async def test_token_revocation_via_session_invalidation():
         assert revoked_res.status_code == 401
         assert "Session has been revoked" in revoked_res.json()["detail"]
 
+@pytest.mark.asyncio
+async def test_registration_email_verification_and_password_login():
+    """User registers, receives email verification code, activates account, and logs in with password."""
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        email = "candidate_new@student.psgtech.ac.in"
+        password = "ComplexPassword99#"
+
+        # 1. Register account
+        reg_res = await ac.post("/api/v1/auth/register", json={
+            "email": email,
+            "password": password,
+            "full_name": "Rohan Krishnan",
+            "role": "STUDENT",
+            "department": "Computer Science & Engineering",
+            "register_number": "23CS999"
+        })
+        assert reg_res.status_code == 200
+        reg_data = reg_res.json()
+        assert reg_data["success"] is True
+        code = reg_data["dev_code"]
+        assert code is not None
+
+        # 2. Try password login before verification (should be rejected 403)
+        pre_login = await ac.post("/api/v1/auth/login-password", json={
+            "email": email,
+            "password": password
+        })
+        assert pre_login.status_code == 403
+        assert "not been verified" in pre_login.json()["detail"]
+
+        # 3. Verify email with code
+        verify_res = await ac.post("/api/v1/auth/verify-email", json={
+            "email": email,
+            "code": code
+        })
+        assert verify_res.status_code == 200
+        verify_data = verify_res.json()
+        assert "access_token" in verify_data
+        assert verify_data["user"]["full_name"] == "Rohan Krishnan"
+        assert verify_data["user"]["status"] == "ACTIVE"
+
+        # 4. Successful password login after verification
+        ok_login = await ac.post("/api/v1/auth/login-password", json={
+            "email": email,
+            "password": password
+        })
+        assert ok_login.status_code == 200
+        assert "access_token" in ok_login.json()
+
+        # 5. Wrong password should fail with 401
+        bad_login = await ac.post("/api/v1/auth/login-password", json={
+            "email": email,
+            "password": "WrongPassword123"
+        })
+        assert bad_login.status_code == 401
+        assert "Invalid email or password" in bad_login.json()["detail"]
+
+
