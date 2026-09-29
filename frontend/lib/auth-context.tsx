@@ -35,18 +35,6 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   loginWithDevRole: (role: UserRole) => Promise<void>;
-  loginWithPassword: (email: string, password: string) => Promise<void>;
-  registerAccount: (payload: {
-    email: string;
-    password: string;
-    full_name: string;
-    role?: UserRole;
-    department?: string;
-    register_number?: string;
-    company_name?: string;
-    designation?: string;
-  }) => Promise<{ success: boolean; message: string; dev_code?: string }>;
-  verifyEmail: (email: string, code: string) => Promise<void>;
   requestOtp: (email: string) => Promise<{ success: boolean; message: string; devOtp?: string; detected_role?: UserRole }>;
   verifyOtp: (email: string, otp: string) => Promise<void>;
   loginWithPasskey: (email: string, passkey: string) => Promise<void>;
@@ -57,10 +45,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL
-  ? `${process.env.NEXT_PUBLIC_API_URL}/api/v1`
-  : "http://localhost:8000/api/v1";
-
+const API_BASE = "http://localhost:8000/api/v1";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -257,71 +242,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const loginWithPassword = async (email: string, password: string) => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/auth/login-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.detail || "Password login failed");
-      }
-      const data = await res.json();
-      handleAuthSuccess(data.access_token, data.user);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const registerAccount = async (payload: {
-    email: string;
-    password: string;
-    full_name: string;
-    role?: UserRole;
-    department?: string;
-    register_number?: string;
-    company_name?: string;
-    designation?: string;
-  }) => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.detail || "Registration failed");
-      }
-      return await res.json();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const verifyEmail = async (email: string, code: string) => {
-    setIsLoading(true);
-    try {
-      const res = await fetch(`${API_BASE}/auth/verify-email`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code }),
-      });
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.detail || "Email verification failed");
-      }
-      const data = await res.json();
-      handleAuthSuccess(data.access_token, data.user);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const logout = () => {
     setUser(null);
     setToken(null);
@@ -340,9 +260,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user && !!token,
         isLoading,
         loginWithDevRole,
-        loginWithPassword,
-        registerAccount,
-        verifyEmail,
         requestOtp,
         verifyOtp,
         loginWithPasskey,
@@ -354,7 +271,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-
 }
 
 export function useAuth() {
