@@ -4,8 +4,8 @@ import { AuthProvider } from "@/lib/auth-context";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "HireLens — College Recruitment & Assessment Platform",
-  description: "Verified institutional college recruitment, candidate skill matching, and technical assessments.",
+  title: "HireLens — Institutional Campus Recruitment & AI Talent Intelligence",
+  description: "Next-generation verified campus recruitment platform for PSG College of Technology, powered by explainable AI matching and proctored adaptive assessments.",
 };
 
 export default function RootLayout({
